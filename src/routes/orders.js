@@ -11,6 +11,8 @@ console.log("STORE:", process.env.SHOPIFY_STORE);
 console.log("TOKEN EXISTS:", !!process.env.SHOPIFY_ADMIN_TOKEN);
 console.log("API VERSION:", process.env.SHOPIFY_API_VERSION);
 
+
+
 router.get("/all", async (req, res) => {
   try {
     const response = await axios.post(
@@ -63,6 +65,50 @@ router.get("/all", async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Failed to fetch orders from Shopify"
+    });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  const orderId = req.params.id;
+  try {
+    const response = await axios.post(
+      SHOP_URL,
+      {
+        query: `
+          query {
+            order(id: "gid://shopify/Order/${orderId}") {
+              billingAddress {
+                firstName
+                lastName
+                phone
+              }
+              displayFulfillmentStatus
+              displayFinancialStatus
+              displayAddress {
+                id
+              }
+            }
+          }
+        `
+      }, {
+        headers: {
+          "X-Shopify-Access-Token": process.env.SHOPIFY_ADMIN_TOKEN,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+    const order = response.data.data.order;
+
+    res.json({
+      success: true,
+      data: order
+    });
+  } catch (error) {
+    console.error("Shopify Order Fetch Error:", error.response?.data || error.message);
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch order from Shopify"
     });
   }
 });
