@@ -78,25 +78,55 @@ router.get("/:id", async (req, res) => {
         query: `
           query {
             order(id: "gid://shopify/Order/${orderId}") {
+              id
+              name
+              email
               billingAddress {
                 firstName
                 lastName
                 phone
+                address1
+                address2
+                city
+                country
+                countryCode
+                formattedArea
+                zip
               }
               displayFulfillmentStatus
               displayFinancialStatus
               displayAddress {
                 id
               }
+              shippingAddress {
+                address1
+                address2
+                city
+                country
+                countryCode
+                firstName
+                lastName
+                phone
+                zip
+                timeZone
+                formattedArea
+              }
+              cartDiscountAmount
+              subtotalPrice
+              totalTax
+              totalShippingPrice
+              totalPrice
+              totalDiscounts
+              
             }
           }
         `
       }, {
-        headers: {
-          "X-Shopify-Access-Token": process.env.SHOPIFY_ADMIN_TOKEN,
-          "Content-Type": "application/json"
-        }
+      headers: {
+        "X-Shopify-Access-Token": process.env.SHOPIFY_ADMIN_TOKEN,
+        "Content-Type": "application/json"
       }
+    }
     );
     const order = response.data.data.order;
 
